@@ -1,5 +1,5 @@
 <?php
-
+header('Content-type: text/html; charset=UTF-8');
 #Author: Ashu Singh (jrN00b)
 #Company: AKESTECH INFOTECH PVT LTD
 
@@ -57,7 +57,9 @@ $array_two = ["^", "*",  "Þ", "ß", "¼", "½", "¿", "À", "¾", "A", "\\", "&
 		"a",    "¡",    "%",     "W",   "·",   "~ ", "~"];
 
 
+
 	function UnicodeToKrutiDev($unicode_substring) {
+
 		$array_one_length = count($GLOBALS['array_one']);
 		$modified_substring = $unicode_substring;
 
@@ -106,23 +108,27 @@ $array_two = ["^", "*",  "Þ", "ß", "¼", "½", "¿", "À", "¾", "A", "\\", "&
 		if(empty($position_of_f))
 			$position_of_f = -1;
 
-		while ( $position_of_f != -1 )  //while-02
-		{
-			$character_left_to_f = $modified_substring[$position_of_f - 1];
-			$modified_substring = str_replace( $character_left_to_f."ि" ,  "f".$character_left_to_f, $modified_substring)  ;
+		while ( $position_of_f > 0 ) {
+			$character_left_to_f = substr($modified_substring,$position_of_f - 3,3);
+			
+			$modified_substring = str_replace( $character_left_to_f."ि" ,  "f".$character_left_to_f , $modified_substring)  ;
 
-			$position_of_f = $position_of_f - 1;
+			$position_of_f = $position_of_f - 3;
 
-			while (( $position_of_f != 0  ) && ( $modified_substring[$position_of_f - 1] == '्' ) )
+			while (( $position_of_f != 0  ) && ( substr($modified_substring, $position_of_f - 3,3) == '्' ) )
 			{
-				$string_to_be_Replaced = $modified_substring[$position_of_f - 2 ]."्"  ;
+				$string_to_be_Replaced = substr($modified_substring, $position_of_f - 3 )."्"  ;
 				$modified_substring = str_replace( $string_to_be_Replaced."f", "f".$string_to_be_Replaced, $modified_substring);
-
-				$position_of_f = $position_of_f - 2  ;
+				
+				$position_of_f = $position_of_f - 3;
 			}
-			$position_of_f = strpos($modified_substring, "ि", $position_of_f + 1 ) ; // search for f ahead of the current position.
+			
+			$position_of_f = strpos($modified_substring, "ि", $position_of_f ) ; // search for f ahead of the current position.
+	
 			if(empty($position_of_f))
 				$position_of_f = -1;
+
+//echo $position_of_f.' : ';die;
 
 		} // end of while-02 loop
 
@@ -131,8 +137,10 @@ $array_two = ["^", "*",  "Þ", "ß", "¼", "½", "¿", "À", "¾", "A", "\\", "&
 		//************************************************************     
 		// Eliminating "र्" and putting  Z  at proper position for this.
 
-		$set_of_matras = "ािीुूृेैोौं:ँॅ";
+		$set_of_matras = "ा ि ी ु ू ृ े ै ो ौ ं : ँ ॅ";
 		$modified_substring .= "  ";  // add two spaces after the string to avoid UNDEFINED char in the following code.
+
+		//echo $modified_substring;die;
 
 		$position_of_half_R = strpos($modified_substring, "र्" );
 		
@@ -144,14 +152,14 @@ $array_two = ["^", "*",  "Þ", "ß", "¼", "½", "¿", "À", "¾", "A", "\\", "&
 			// "र्"  is two bytes long
 			$probable_position_of_Z = $position_of_half_R + 6   ;  
 
-			$character_right_to_probable_position_of_Z = substr($modified_substring, $probable_position_of_Z + 3,3);
+			$character_right_to_probable_position_of_Z = substr($modified_substring, $probable_position_of_Z + 3);
 
 			// trying to find non-maatra position right to probable_position_of_Z .
 
 			while ( !empty(strpos($set_of_matras, $character_right_to_probable_position_of_Z )) )  
 			{
 				$probable_position_of_Z = $probable_position_of_Z + 3 ;
-				$character_right_to_probable_position_of_Z = $modified_substring[$probable_position_of_Z + 3];
+				$character_right_to_probable_position_of_Z = substr($modified_substring, $probable_position_of_Z + 3);
 			} // end of while-05
 
 
@@ -167,6 +175,8 @@ $array_two = ["^", "*",  "Þ", "ß", "¼", "½", "¿", "À", "¾", "A", "\\", "&
 
 		$modified_substring = substr($modified_substring, 0 , strlen($modified_substring) - 2 );
 
+//echo $modified_substring;die;
+
 		//substitute array_two elements in place of corresponding array_one elements
 
 		for( $input_symbol_idx = 0; $input_symbol_idx < $array_one_length; $input_symbol_idx++ ) {
@@ -178,6 +188,7 @@ $array_two = ["^", "*",  "Þ", "ß", "¼", "½", "¿", "À", "¾", "A", "\\", "&
 				$idx = strpos($modified_substring, $GLOBALS['array_one'][$input_symbol_idx]);
 				if(empty($idx))
 					$idx = -1;
+//echo $modified_substring.'<br>';
 			} // end of while-00 loop
 		} // end of for loop
 
@@ -199,14 +210,7 @@ function ReplaceFirstOccurrence($Source,$Find,$Replace) {
 		return $result;
 }
 
-//call example
-// echo " ज".strlen("ज");
-// echo " ब".strlen("ब");
-// echo " र्".strlen("र्");
-// echo " द".strlen("द");
-// echo " स्".strlen("स्");
-//echo " त".strlen("त");
-//echo strlen("जबर्दस्त");
-//UnicodeToKrutiDev("एक समय की बात है, करंटपुरा नामक कस्बे में दो दोस्त रहा करते थे।");
+$t = "इसे ब्रांडी दो। बुढिया फिर बोली।";
+echo UnicodeToKrutiDev($t);
 
 ?>
